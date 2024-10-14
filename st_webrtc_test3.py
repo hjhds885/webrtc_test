@@ -33,7 +33,8 @@ class VideoTransformer(VideoTransformerBase):
 
 
 #async 
-def main():  
+def main(): 
+    """
     ctx = webrtc_streamer(
             key="example",
             video_processor_factory=VideoProcessor,
@@ -43,6 +44,8 @@ def main():
             #video_frame_callback=Callback, NG画面画止まる
 
         )
+    """
+    
     # サイドバーにWebRTCストリームを表示
     with st.sidebar:
         st.header("Webcam Stream")
