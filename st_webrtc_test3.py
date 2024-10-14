@@ -17,6 +17,155 @@ import keyboard
 r = sr.Recognizer()
 
 nest_asyncio.apply()
+#######################################################################
+#  LLM問答関数   
+async def query_llm(user_input,frame):
+    print("user_input=",user_input)
+
+    try:
+            
+        # 画像を適切な形式に変換（例：base64エンコードなど）
+        # 画像をエンコード
+        encoded_image = cv2.imencode('.jpg', frame)[1]
+        # 画像をBase64に変換
+        base64_image = base64.b64encode(encoded_image).decode('utf-8')  
+        #image = f"data:image/jpeg;base64,{base64_image}"
+        
+        if st.session_state.model_name ==  "keep_gpt-4o":
+            llm = st.session_state.llm  
+            stream = llm.stream([
+                    *st.session_state.message_history,
+                    (
+                        "user",
+                        [
+                            {
+                                "type": "text",
+                                "text": user_input
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}",
+                                    "detail": "auto"
+                                },
+                            }
+                        ]
+                    )
+                ])
+            #response = chain.invoke(user_input)
+            # LLMの返答を表示する  Streaming
+            with st.chat_message('ai'):   
+                #st.write(response)  
+                response = st.write_stream(stream) 
+            #full = next(stream)
+            #for chunk in stream:
+                #full += chunk
+            #response = full    
+            print(response)
+          
+        
+        if st.session_state.model_name ==  "command-r-plus":
+            print("st.session_state.model_name=",st.session_state.model_name)
+            print(user_input)
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    *st.session_state.message_history,
+                     #("user", f"{user_input}:{base64_image}"),  #やっぱりだめ
+                     ("user", f"{user_input}")
+                ]
+            )
+            
+            output_parser = StrOutputParser()
+            chain = prompt | st.session_state.llm | output_parser
+            #stream = chain.stream(user_input,base64_image)
+            
+            stream = chain.stream({"user_input":user_input,"base64_image": base64_image})
+            print("stream=",stream)
+            #response = chain.invoke(user_input)
+            # LLMの返答を表示する  Streaming
+            with st.chat_message('ai'):   
+                #st.write(response)  
+                response =st.write_stream(stream) 
+            print("response=",response)
+
+        elif st.session_state.model_name ==  "keep_command-r-plus":
+            print("st.session_state.model_name=",st.session_state.model_name)
+            prompt = ChatPromptTemplate.from_messages([
+                    *st.session_state.message_history,
+                    ("user", "{user_input}")  # ここにあとでユーザーの入力が入る
+                ])
+            output_parser = StrOutputParser()
+            chain = prompt | st.session_state.llm | output_parser
+            stream = chain.stream(user_input)
+            
+            #response = chain.invoke(user_input)
+            # LLMの返答を表示する  Streaming
+            with st.chat_message('ai'):   
+                #st.write(response)  
+                response =st.write_stream(stream) 
+            print("response=",response)
+        else:
+            print("st.session_state.model_name=",st.session_state.model_name)
+            prompt = ChatPromptTemplate.from_messages(
+                [
+                    *st.session_state.message_history,
+                    (
+                        "user",
+                        [
+                            {
+                                "type": "text",
+                                "text": user_input
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"},
+                            }
+                        ],
+                    ),
+                ]
+            )
+             
+            output_parser = StrOutputParser()
+            chain = prompt | st.session_state.llm | output_parser
+            #stream = chain.stream(user_input,base64_image)
+            stream = chain.stream({"user_input":user_input,"base64_image": base64_image})
+            #print("stream=",stream)
+            #response = chain.invoke(user_input)
+            # LLMの返答を表示する  Streaming
+            with st.chat_message('ai'):   
+                #st.write(response)  
+                response =st.write_stream(stream) 
+            #print("response=",response)            
+        
+
+        print(f"{st.session_state.model_name}=",response)
+        
+
+        # 音声出力処理                
+        if st.session_state.output_method == "音声":
+            speak_thread = speak_async(response)
+            # 必要に応じて音声合成の完了を待つ
+            speak_thread.join()    
+            print("音声再生が完了しました。次の処理を実行します。")
+        if engine._inLoop:
+            print("音声出力がLOOPになっています。")
+            engine.endLoop()
+            print("音声再生LOOPを解除しました。次の処理を実行できます")
+
+        # チャット履歴に追加
+        st.session_state.message_history.append(("user", user_input))
+        st.session_state.message_history.append(("ai", response))
+    
+        return response
+    except StopIteration:
+        # StopIterationの処理
+        print("StopIterationが発生")
+        pass
+
+    user_input = ""
+    base64_image = ""
+    frame = ""    
+#######################################################################
 
 class VideoProcessor:
     def __init__(self) -> None:
@@ -112,7 +261,9 @@ def speak_async(text):
     thread = threading.Thread(target=run)
     thread.start()
     return thread
-####################################################################### 
+#######################################################################
+
+
  #async 
 def main(): 
     ###################################################################    
@@ -231,12 +382,15 @@ def main():
                 st.sidebar.header("Capture Image")
                 st.sidebar.image(frame, channels="BGR")
                 # if st.button("Query LLM : 画像の内容を説明して"):
-                st.session_state.result= ""
-                result = loop.run_until_complete(query_llm(st.session_state.user_input,frame))
-                st.session_state.result = result
-                result = "こんばんは"
-                #result = await query_llm(text,frame)
-                st.session_state.user_input=""
+                with st.spinner("Querying LLM..."):
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    st.session_state.result= ""
+                    result = loop.run_until_complete(query_llm(st.session_state.user_input,frame))
+                    st.session_state.result = result
+                    result = ""
+                    #result = await query_llm(text,frame)
+                    st.session_state.user_input=""
 
     #await text_input =st.chat_input("テキストで問い合わせる場合、ここに入力してね！") #,key=st.session_state.text_input)
     #text_input = st.text_input("テキストで問い合わせる場合、以下のフィールドに入力してください:", key=st.session_state.text_input) 
