@@ -23,7 +23,7 @@ nest_asyncio.apply()
 #  LLM問答関数   
 async def query_llm(user_input,frame):
     print("user_input=",user_input)
-    engine = pyttsx3.init()
+    
     try:
             
         # 画像を適切な形式に変換（例：base64エンコードなど）
@@ -151,10 +151,10 @@ async def query_llm(user_input,frame):
             print("音声再生が完了しました。次の処理を実行します。")
             
             
-        if engine._inLoop:
-            print("音声出力がLOOPになっています。")
-            engine.endLoop()
-            print("音声再生LOOPを解除しました。次の処理を実行できます")
+        #if engine._inLoop:
+            #print("音声出力がLOOPになっています。")
+            #engine.endLoop()
+            #print("音声再生LOOPを解除しました。次の処理を実行できます")
 
         # チャット履歴に追加
         st.session_state.message_history.append(("user", user_input))
@@ -264,6 +264,12 @@ def speak_async(text):
         engine.startLoop(False)
         engine.iterate()
         engine.endLoop()
+        if engine._inLoop:
+            print("音声出力がLOOPになっています。")
+            engine.endLoop()
+            print("音声再生LOOPを解除しました。次の処理を実行できます")
+
+    
     thread = threading.Thread(target=run)
     thread.start()
     return thread
