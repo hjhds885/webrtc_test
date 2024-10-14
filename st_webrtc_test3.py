@@ -15,7 +15,7 @@ import keyboard
 #from torch import res
 
 r = sr.Recognizer()
-engine = pyttsx3.init()
+
 nest_asyncio.apply()
 
 class VideoProcessor:
@@ -100,6 +100,7 @@ def speech_to_text():
 #######################################################################
 #音声出力関数
 def speak_async(text):
+    engine = pyttsx3.init()
     def run():
         engine.say(text)
         engine.startLoop(False)
