@@ -150,7 +150,7 @@ async def query_llm(user_input,frame):
             speak_thread.join()    
             print("音声再生が完了しました。次の処理を実行します。")
             
-        engine = pyttsx3.init()    
+            
         if engine._inLoop:
             print("音声出力がLOOPになっています。")
             engine.endLoop()
@@ -257,7 +257,7 @@ def speech_to_text():
 #######################################################################
 #音声出力関数
 def speak_async(text):
-    engine = pyttsx3.init()
+    
     def run():
         engine.say(text)
         engine.startLoop(False)
@@ -281,6 +281,8 @@ def main():
     st.session_state.user_input = ""
     st.session_state.result = ""
     st.session_state.frame = "" 
+    engine = pyttsx3.init()
+    
     col, col2 = st.sidebar.columns(2)
      # 各列にボタンを配置
     with col:
