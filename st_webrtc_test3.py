@@ -68,7 +68,7 @@ def select_model():
         return ChatOpenAI(
             temperature=temperature,
             model=st.session_state.model_name,
-            api_key= st.secrets.key.OPEN_API_KEY,
+            api_key= st.secrets.key.OPENAI_API_KEY,
             max_tokens=512,  #指定しないと短い回答になったり、途切れたりする。
             streaming=True,
         )
