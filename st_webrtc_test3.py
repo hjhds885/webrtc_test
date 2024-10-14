@@ -198,7 +198,7 @@ def init_page():
         page_icon="🤗"
     )
     st.header("Mr.Yas Chat 🤗")
-    st.write("Safari,Chrome,Edge,Firefoxなどブラウザのカメラ、マイク、スピーカーの使用許可設定が必要です。/n
+    st.write("Safari,Chrome,Edge,Firefoxなどブラウザのカメラ、マイク、スピーカーの使用許可設定が必要です。
     ")
     st.sidebar.title("Options")
 
