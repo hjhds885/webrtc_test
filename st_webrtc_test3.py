@@ -68,6 +68,7 @@ def select_model():
         return ChatOpenAI(
             temperature=temperature,
             model=st.session_state.model_name,
+            api_key= st.secrets.key.OPEN_API_KEY,
             max_tokens=512,  #指定しないと短い回答になったり、途切れたりする。
             streaming=True,
         )
@@ -76,7 +77,8 @@ def select_model():
         return ChatAnthropic(
             temperature=temperature,
             #model=st.session_state.model_name,
-            model_name=st.session_state.model_name,  
+            model_name=st.session_state.model_name, 
+            api_key= st.secrets.key.ANTHROPIC_API_KEY,
             max_tokens_to_sample=2048,  
             timeout=None,  
             max_retries=2,
@@ -86,7 +88,8 @@ def select_model():
         st.session_state.model_name = "gemini-1.5-pro-latest"
         return ChatGoogleGenerativeAI(
             temperature=temperature,
-            model=st.session_state.model_name
+            model=st.session_state.model_name,
+            api_key= st.secrets.key.GOOGLE_API_KEY,
         )
  #######################################################################
 # 音声入力（認識）関数
