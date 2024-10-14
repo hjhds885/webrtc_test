@@ -198,6 +198,8 @@ def init_page():
         page_icon="🤗"
     )
     st.header("Mr.Yas Chat 🤗")
+    st.write("Safari,Chrome,Edge,Firefoxなどブラウザのカメラ、マイク、スピーカーの使用許可設定が必要です。/n
+    ")
     st.sidebar.title("Options")
 
 def init_messages():
@@ -310,10 +312,10 @@ def main():
                 #audio_processor_factory=AudioTransformer,
                 video_processor_factory=VideoTransformer,
             )   
-    if webrtc_ctx.state.playing:
-        st.write("WebRTC is playing")
-    else:
-        st.write("WebRTC is not playing")
+    #if webrtc_ctx.state.playing:
+        #st.write("WebRTC is playing")
+    #else:
+        #st.write("WebRTC is not playing")
 
 
     user_input = ""
@@ -437,11 +439,11 @@ def main():
                     st.write(st.session_state.user_input) 
                 #LMMの回答を表示 
                 with st.spinner("Querying LLM..."):
-                    #loop = asyncio.new_event_loop()
-                    #asyncio.set_event_loop(loop)
-                    #st.session_state.result= ""
-                    #result = loop.run_until_complete(query_llm(st.session_state.user_input,frame))
-                    result = await query_llm(st.session_state.user_input,frame)
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    st.session_state.result= ""
+                    result = loop.run_until_complete(query_llm(st.session_state.user_input,frame))
+                    #result = await query_llm(st.session_state.user_input,frame)
                 st.session_state.result = result
                 result = ""
                 st.session_state.user_input=""
