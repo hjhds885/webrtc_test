@@ -23,7 +23,7 @@ nest_asyncio.apply()
 #  LLM問答関数   
 async def query_llm(user_input,frame):
     print("user_input=",user_input)
-
+    engine = pyttsx3.init()
     try:
             
         # 画像を適切な形式に変換（例：base64エンコードなど）
