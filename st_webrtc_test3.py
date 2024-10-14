@@ -259,6 +259,7 @@ def speech_to_text():
 def speak_async(text):
     
     def run():
+        engine = pyttsx3.init()
         engine.say(text)
         engine.startLoop(False)
         engine.iterate()
@@ -281,7 +282,7 @@ def main():
     st.session_state.user_input = ""
     st.session_state.result = ""
     st.session_state.frame = "" 
-    engine = pyttsx3.init()
+    
     
     col, col2 = st.sidebar.columns(2)
      # 各列にボタンを配置
