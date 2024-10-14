@@ -5,6 +5,9 @@ import cv2
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_cohere.chat_models import ChatCohere
 import base64
 import speech_recognition as sr
 import pyttsx3
@@ -15,7 +18,6 @@ import keyboard
 #from torch import res
 
 r = sr.Recognizer()
-
 nest_asyncio.apply()
 #######################################################################
 #  LLM問答関数   
@@ -147,6 +149,8 @@ async def query_llm(user_input,frame):
             # 必要に応じて音声合成の完了を待つ
             speak_thread.join()    
             print("音声再生が完了しました。次の処理を実行します。")
+            
+        engine = pyttsx3.init()    
         if engine._inLoop:
             print("音声出力がLOOPになっています。")
             engine.endLoop()
@@ -336,8 +340,8 @@ def main():
                 button_input = "前の画像と何が変わりましたか？"
 
         with col3:
-            if st.button("石川県の観光地を教えてください。"):
-                button_input = "石川県の観光地を教えてください。"
+            if st.button("この画像の文を翻訳して"):
+                button_input = "この画像の文を翻訳して"
 
         with col4:
             if st.button("CIDPとは？"):
@@ -391,7 +395,60 @@ def main():
                     result = ""
                     #result = await query_llm(text,frame)
                     st.session_state.user_input=""
-
+    ###############################################################################
+    #音声入力（テキストに変換した入力）の対話ループ
+    #print("Before_st.session_state.input_method=",st.session_state.input_method)
+    if st.session_state.input_method == "音声": 
+        already_displayed = False
+        st.sidebar.header("Capture Image") 
+        image_placeholder = st.sidebar.empty()
+         
+        while True:
+            if not already_displayed:
+                print("話しかけてください...")
+                st.write("🤗話しかけてください...")
+                already_displayed = True
+            st.session_state.user_input = ""
+            st.session_state.user_input = speech_to_text()
+            if keyboard.is_pressed('1') :st.session_state.user_input ="こんばんは"
+            if keyboard.is_pressed('2') :st.session_state.user_input ="画像の内容を説明して"
+            if keyboard.is_pressed('3') :st.session_state.user_input ="石川県小松市の観光地は？"
+            if keyboard.is_pressed('4') :st.session_state.user_input ="有名な道の駅は？"
+            if keyboard.is_pressed('5') :st.session_state.user_input ="CIDPとは？"
+            if keyboard.is_pressed('6') :st.session_state.user_input ="きょうの料理はなにがいいかな"
+            if keyboard.is_pressed('7') :st.session_state.user_input ="宇宙人はいますか？"
+            if keyboard.is_pressed('8') :st.session_state.user_input ="私の名前は誠です。"
+            if keyboard.is_pressed('9') :st.session_state.user_input ="私の名前は？"
+            if keyboard.is_pressed('0') :st.session_state.user_input ="善悪は何で決まりますか？"
+            if keyboard.is_pressed('esc') :
+                print("音声での問い合わせを終了しました。")
+                with st.chat_message('assistant'):   
+                    st.write("音声での問い合わせを終了しました。") 
+                #break   
+            # 対話ループ 
+            # 画像と問い合わせ入力があったときの処理
+            if webrtc_ctx.video_transformer: #VideoProcessor
+                frame = webrtc_ctx.video_transformer.frame  #VideoProcessor.frame 
+            if frame is not None and st.session_state.user_input !="":
+                #サイドバーに画像を表示
+                image_placeholder.image(frame, channels="BGR")
+                #ユーザーの音声入力を表示
+                with st.chat_message('user'):   
+                    st.write(st.session_state.user_input) 
+                #LMMの回答を表示 
+                with st.spinner("Querying LLM..."):
+                    #loop = asyncio.new_event_loop()
+                    #asyncio.set_event_loop(loop)
+                    #st.session_state.result= ""
+                    #result = loop.run_until_complete(query_llm(st.session_state.user_input,frame))
+                    result = await query_llm(st.session_state.user_input,frame)
+                st.session_state.result = result
+                result = ""
+                st.session_state.user_input=""
+                already_displayed = False
+                    
+    ###############################################################################  
+    ###############################################################################
     #await text_input =st.chat_input("テキストで問い合わせる場合、ここに入力してね！") #,key=st.session_state.text_input)
     #text_input = st.text_input("テキストで問い合わせる場合、以下のフィールドに入力してください:", key=st.session_state.text_input) 
     
