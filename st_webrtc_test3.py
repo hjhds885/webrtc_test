@@ -257,9 +257,8 @@ def speech_to_text():
 #######################################################################
 #音声出力関数
 def speak_async(text):
-    
+    engine = pyttsx3.init()
     def run():
-        engine = pyttsx3.init()
         engine.say(text)
         engine.startLoop(False)
         engine.iterate()
