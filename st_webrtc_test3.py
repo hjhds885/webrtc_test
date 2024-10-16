@@ -148,8 +148,9 @@ async def query_llm(user_input,frame):
 
         # 音声出力処理                
         if st.session_state.output_method == "音声":
-            st.write("音声出力を開始します。")
-            speak(response)
+            #st.write("音声出力を開始します。")
+            #speak(response)
+            speak1(response)
             #speak_thread = speak_async(response)
             # 必要に応じて音声合成の完了を待つ
             #speak_thread.join() 
@@ -325,7 +326,7 @@ def speak_async(text):
     thread.start()
     return thread
 def speak(text):
-    st.write("音声ファイルを作成します。")
+    #st.write("音声ファイルを作成します。")
     # テキストを音声に変換
     tts = gTTS(text=text, lang='ja')
     output_file = "output.mp3"
@@ -336,7 +337,31 @@ def speak(text):
     audio_bytes = audio_file.read()
     st.audio(audio_bytes, format="audio/mp3", start_time=0)
 
-    st.write("音声再生が完了しました。")
+    #st.write("音声再生が完了しました。")
+    # 音声ファイルを削除
+    audio_file.close()
+    os.remove(output_file)
+    #st.write("音声再生が完了し、ファイルは削除されました。")
+def speak1(text):
+    st.write("音声ファイルを作成します。")
+    # テキストを音声に変換
+    tts = gTTS(text=text, lang='ja')
+    output_file = "output.mp3"
+    tts.save(output_file)
+    st.write("音声ファイルに保存しました。音声で聞きたい場合は再生ボタンを押してください。")
+    # 音声ファイルを提供
+    pygame.mixer.init()
+    # Pygameを使って音声を再生
+    pygame.mixer.music.load(output_file)
+    pygame.mixer.music.play()
+    
+    # 再生が終了するまで待機
+    while pygame.mixer.music.get_busy():
+        continue
+    
+    # Pygameを終了してファイルを解放
+    pygame.mixer.quit()
+    #st.write("音声再生が完了しました。")
     # 音声ファイルを削除
     audio_file.close()
     os.remove(output_file)
