@@ -15,6 +15,9 @@ import asyncio
 import nest_asyncio
 import threading
 import keyboard
+from gtts import gTTS
+import pygame
+import os
 #from torch import res
 
 r = sr.Recognizer()
@@ -256,8 +259,8 @@ def speech_to_text():
             return ""
 #######################################################################
 #音声出力関数
-engine = pyttsx3.init()
-def speak_async(text):
+#engine = pyttsx3.init()
+def speak_async1(text):
     def run():
         engine.say(text)
         engine.startLoop(False)
@@ -273,7 +276,37 @@ def speak_async(text):
     thread.start()
     return thread
 #######################################################################
+#音声出力関数
 
+def speak_async(text):
+    def run():
+        # 初期設定
+        pygame.mixer.init()
+        # Pygameを終了してファイルを解放
+        pygame.mixer.quit()
+                
+        # テキストを音声に変換
+        tts = gTTS(text=text, lang='ja')
+        output_file="output.mp3"
+        tts.save(output_file)
+        st.write("音声ファイルが保存されました。")
+        # 音声ファイルを提供
+        pygame.mixer.init()
+        # Pygameを使って音声を再生
+        pygame.mixer.music.load(output_file)
+        pygame.mixer.music.play()
+        
+        # 再生が終了するまで待機
+        while pygame.mixer.music.get_busy():
+            continue
+        
+        # Pygameを終了してファイルを解放
+        pygame.mixer.quit()
+            
+    thread = threading.Thread(target=run)
+    thread.start()
+    return thread
+#######################################################################
 
  #async 
 def main(): 
