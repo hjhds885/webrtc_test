@@ -150,18 +150,12 @@ async def query_llm(user_input,frame):
         if st.session_state.output_method == "音声":
             st.write("音声出力を開始します。")
             speak(response)
-            speak_thread = speak_async(response)
+            #speak_thread = speak_async(response)
             # 必要に応じて音声合成の完了を待つ
-            speak_thread.join() 
-                   
-            print("音声再生が完了しました。次の処理を実行します。")
-            st.write("音声再生が完了しました。次の処理を実行します。")
+            #speak_thread.join() 
+            #print("音声再生が完了しました。次の処理を実行します。")
+            st.write("音声再生が完了しました。次の処理を実行できます。")
             
-        #if engine._inLoop:
-            #print("音声出力がLOOPになっています。")
-            #engine.endLoop()
-            #print("音声再生LOOPを解除しました。次の処理を実行できます")
-
         # チャット履歴に追加
         st.session_state.message_history.append(("user", user_input))
         st.session_state.message_history.append(("ai", response))
@@ -330,7 +324,7 @@ def speak_async(text):
     thread = threading.Thread(target=run)
     thread.start()
     return thread
-def speak(text):
+def speak1(text):
     st.write("音声ファイルを作成します。")
     # テキストを音声に変換
     tts = gTTS(text=text, lang='ja')
@@ -347,7 +341,32 @@ def speak(text):
     audio_file.close()
     os.remove(output_file)
     st.write("音声再生が完了し、ファイルは削除されました。")
+def speak(text):
+    st.write("音声ファイルを作成します。")
+    # テキストを音声に変換
+    tts = gTTS(text=text, lang='ja')
+    output_file = "output.mp3"
+    tts.save(output_file)
+    st.write("音声ファイルが保存されました。")
+    # 音声ファイルを提供
+    audio_file = open(output_file, "rb")
+    audio_bytes = audio_file.read()
+    audio_file.close()
 
+    # JavaScriptで自動再生
+    audio_base64 = f"data:audio/mp3;base64,{audio_bytes.decode('latin1')}"
+    autoplay_audio = f"""
+    <audio autoplay>
+    <source src='{audio_base64}' type='audio/mp3'>
+    </audio>
+    """
+    
+    st.markdown(autoplay_audio, unsafe_allow_html=True)
+    st.write("st.audioでの音声出力が完了しました。")
+    # 音声ファイルを削除
+    audio_file.close()
+    os.remove(output_file)
+    st.write("音声再生が完了し、ファイルは削除されました。")
 
 
 #######################################################################
