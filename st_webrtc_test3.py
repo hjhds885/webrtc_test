@@ -149,6 +149,7 @@ async def query_llm(user_input,frame):
         # 音声出力処理                
         if st.session_state.output_method == "音声":
             st.write("音声出力を開始します。")
+            speak(response)
             speak_thread = speak_async(response)
             # 必要に応じて音声合成の完了を待つ
             speak_thread.join() 
@@ -329,6 +330,26 @@ def speak_async(text):
     thread = threading.Thread(target=run)
     thread.start()
     return thread
+def speak(text):
+    st.write("音声ファイルを作成します。")
+    # テキストを音声に変換
+    tts = gTTS(text=text, lang='ja')
+    output_file = "output.mp3"
+    tts.save(output_file)
+    st.write("音声ファイルが保存されました。")
+    # 音声ファイルを提供
+    audio_file = open(output_file, "rb")
+    audio_bytes = audio_file.read()
+    st.audio(audio_bytes, format="audio/mp3", start_time=0)
+
+    st.write("st.audioでの音声出力が完了しました。")
+    # 音声ファイルを削除
+    audio_file.close()
+    os.remove(output_file)
+    st.write("音声再生が完了し、ファイルは削除されました。")
+
+
+
 #######################################################################
 
  #async 
