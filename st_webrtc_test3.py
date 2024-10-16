@@ -152,32 +152,7 @@ async def query_llm(user_input,frame):
             speak_thread = speak_async(response)
             # 必要に応じて音声合成の完了を待つ
             speak_thread.join() 
-            ################################################
-            st.write("音声ファイルを作成します。")
-            # 初期設定
-            pygame.mixer.init()
-            # Pygameを終了してファイルを解放
-            #pygame.mixer.quit()
-            # テキストを音声に変換
-            tts = gTTS(text=response, lang='ja')
-            output_file="output.mp3"
-            tts.save(output_file)
-            st.write("音声ファイルが保存されました。")
-            # 音声ファイルを提供
-            pygame.mixer.init()
-            # Pygameを使って音声を再生
-            pygame.mixer.music.load(output_file)
-            pygame.mixer.music.play()
-            # 再生が終了するまで待機
-            while pygame.mixer.music.get_busy():
-                continue
-            # Pygameを終了してファイルを解放
-            pygame.mixer.quit()
-            st.write("st.audioでの音声出力が完了しました。")
-            # 音声ファイルを削除
-            os.remove(output_file)
-            st.write("音声再生が完了し、ファイルは削除されました。") 
-            ########################################################
+                   
             print("音声再生が完了しました。次の処理を実行します。")
             st.write("音声再生が完了しました。次の処理を実行します。")
             
