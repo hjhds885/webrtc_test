@@ -14,3 +14,4 @@ nest-asyncio==1.5.8
 threadpoolctl==3.2.0
 keyboard==0.13.5
 gTTS==2.5.3
+PyAudio==0.2.14
