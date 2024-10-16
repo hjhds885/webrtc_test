@@ -10,7 +10,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_cohere.chat_models import ChatCohere
 import base64
 import speech_recognition as sr
-import pyttsx3
+#import pyttsx3
 import asyncio
 import nest_asyncio
 import threading
