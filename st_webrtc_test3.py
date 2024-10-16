@@ -148,11 +148,12 @@ async def query_llm(user_input,frame):
 
         # 音声出力処理                
         if st.session_state.output_method == "音声":
+            st.write("音声出力を開始します。")
             speak_thread = speak_async(response)
             # 必要に応じて音声合成の完了を待つ
             speak_thread.join()    
             print("音声再生が完了しました。次の処理を実行します。")
-            
+            st.write("音声再生が完了しました。次の処理を実行します。")
             
         #if engine._inLoop:
             #print("音声出力がLOOPになっています。")
