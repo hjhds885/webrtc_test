@@ -280,11 +280,11 @@ def speak_async1(text):
 
 def speak_async(text):
     def run():
+        st.write("音声ファイルを作成します。")
         # 初期設定
         pygame.mixer.init()
         # Pygameを終了してファイルを解放
-        pygame.mixer.quit()
-                
+        #pygame.mixer.quit()
         # テキストを音声に変換
         tts = gTTS(text=text, lang='ja')
         output_file="output.mp3"
@@ -295,14 +295,15 @@ def speak_async(text):
         # Pygameを使って音声を再生
         pygame.mixer.music.load(output_file)
         pygame.mixer.music.play()
-        
         # 再生が終了するまで待機
         while pygame.mixer.music.get_busy():
             continue
-        
         # Pygameを終了してファイルを解放
         pygame.mixer.quit()
-            
+        st.write("st.audioでの音声出力が完了しました。")
+        # 音声ファイルを削除
+        os.remove(output_file)
+        st.write("音声再生が完了し、ファイルは削除されました。")    
     thread = threading.Thread(target=run)
     thread.start()
     return thread
