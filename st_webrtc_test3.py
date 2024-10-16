@@ -324,24 +324,24 @@ def speak_async(text):
     thread = threading.Thread(target=run)
     thread.start()
     return thread
-def speak1(text):
+def speak(text):
     st.write("音声ファイルを作成します。")
     # テキストを音声に変換
     tts = gTTS(text=text, lang='ja')
     output_file = "output.mp3"
     tts.save(output_file)
-    st.write("音声ファイルが保存されました。")
+    st.write("音声ファイルに保存しました。音声で聞きたい場合は再生ボタンを押してください。")
     # 音声ファイルを提供
     audio_file = open(output_file, "rb")
     audio_bytes = audio_file.read()
     st.audio(audio_bytes, format="audio/mp3", start_time=0)
 
-    st.write("st.audioでの音声出力が完了しました。")
+    st.write("音声再生が完了しました。")
     # 音声ファイルを削除
     audio_file.close()
     os.remove(output_file)
-    st.write("音声再生が完了し、ファイルは削除されました。")
-def speak(text):
+    #st.write("音声再生が完了し、ファイルは削除されました。")
+def speak2(text):
     st.write("音声ファイルを作成します。")
     # テキストを音声に変換
     tts = gTTS(text=text, lang='ja')
