@@ -155,7 +155,7 @@ async def query_llm(user_input,frame):
             # 必要に応じて音声合成の完了を待つ
             #speak_thread.join() 
             #print("音声再生が完了しました。次の処理を実行します。")
-            st.write("音声再生が完了しました。次の処理を実行できます。")
+            #st.write("音声再生が完了しました。次の処理を実行できます。")
             
         # チャット履歴に追加
         st.session_state.message_history.append(("user", user_input))
@@ -195,10 +195,10 @@ class VideoTransformer(VideoTransformerBase):
         return frame
 def init_page():
     st.set_page_config(
-        page_title="Mr.Yas Chat",
-        page_icon="🤗"
+        page_title="Mr.Yas Chatbot",
+        page_icon="🤖"
     )
-    st.header("Mr.Yas Chat 🤗")
+    st.header("Mr.Yas Chatbot 🤖")
     st.write("Safari,Chrome,Edge,Firefoxなどブラウザのカメラ、マイク、スピーカーの使用許可設定が必要です。")
     st.sidebar.title("Options")
 
@@ -335,7 +335,7 @@ def speak(text):
     # 音声ファイルを提供
     audio_file = open(output_file, "rb")
     audio_bytes = audio_file.read()
-    st.audio(audio_bytes, format="audio/mp3", start_time=0)
+    st.audio(audio_bytes, format="audio/mp3", start_time=0,autoplay=True)
 
     #st.write("音声再生が完了しました。")
     # 音声ファイルを削除
