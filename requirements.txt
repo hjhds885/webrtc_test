@@ -3,7 +3,6 @@ streamlit_webrtc
 opencv-python-headless==4.10.0.84
 av
 SpeechRecognition==3.10.1
-pyttsx3==2.91
 langchain==0.3.0
 langchain-anthropic==0.2.1
 langchain-cohere==0.3.0
