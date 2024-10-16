@@ -199,7 +199,12 @@ def init_page():
         page_icon="🤖"
     )
     st.header("Mr.Yas Chatbot 🤖")
-    st.write("Safari,Chrome,Edge,Firefoxなどブラウザのカメラ、マイク、スピーカーの使用許可設定が必要です。")
+    st.write("""カメラやマイクのアクセスを許可するようブラウザを設定してください。
+         \nChrome・・・support.google.comで「カメラやマイクのアクセスを許可する」を入力して検索,
+         \nSafari・・・support.apple.comのSearch for more topicsで,
+         \nFirefox・・・support.mozilla.orgで         
+         """) 
+    
     st.sidebar.title("Options")
 
 def init_messages():
