@@ -10,15 +10,12 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_cohere.chat_models import ChatCohere
 import base64
 import speech_recognition as sr
-#import pyttsx3
 import asyncio
 import nest_asyncio
 import threading
 import keyboard
 from gtts import gTTS
-#import pygame
 import os
-#from torch import res
 
 r = sr.Recognizer()
 nest_asyncio.apply()
@@ -200,9 +197,9 @@ def init_page():
     )
     st.header("Mr.Yas Chatbot 🤖")
     st.write("""カメラやマイクのアクセスを許可するようブラウザを設定してください。
-         \nChrome・・・support.google.comで「カメラやマイクのアクセスを許可する」を入力して検索,
-         \nSafari・・・support.apple.comのSearch for more topicsで,
-         \nFirefox・・・support.mozilla.orgで         
+         \nChrome・・・support.google.com参照。「カメラやマイクのアクセスを許可する」を入力して検索,
+         \nSafari・・・support.apple.com参照。設定⇒Safari⇒カメラ及びマイク⇒確認又は許可,
+         \nFirefox・・・support.mozilla.org参照。         
          """) 
     
     st.sidebar.title("Options")
@@ -336,7 +333,7 @@ def speak(text):
     tts = gTTS(text=text, lang='ja')
     output_file = "output.mp3"
     tts.save(output_file)
-    st.write("音声ファイルに保存しました。音声で聞きたい場合は再生ボタンを押してください。")
+    st.write("音声ファイルに保存しました。")
     # 音声ファイルを提供
     audio_file = open(output_file, "rb")
     audio_bytes = audio_file.read()
