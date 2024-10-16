@@ -16,7 +16,7 @@ import nest_asyncio
 import threading
 import keyboard
 from gtts import gTTS
-import pygame
+#import pygame
 import os
 #from torch import res
 
@@ -149,8 +149,8 @@ async def query_llm(user_input,frame):
         # 音声出力処理                
         if st.session_state.output_method == "音声":
             #st.write("音声出力を開始します。")
-            #speak(response)
-            speak1(response)
+            speak(response)   #st.audio ok
+            #speak1(response) pygame NG
             #speak_thread = speak_async(response)
             # 必要に応じて音声合成の完了を待つ
             #speak_thread.join() 
