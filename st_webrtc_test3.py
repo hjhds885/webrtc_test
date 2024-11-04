@@ -340,7 +340,7 @@ def app_sst_with_video():
         st.header("Webcam Stream")
         webrtc_ctx = webrtc_streamer(
             key="speech-to-text-w-video",
-            desired_playing_state=True, 
+            #desired_playing_state=True, 
             mode=WebRtcMode.SENDRECV, #.SENDONLY,  #
             #audio_receiver_size=2048,  #1024　#512 #デフォルトは4
             #小さいとQueue overflow. Consider to set receiver size bigger. Current size is 1024.
