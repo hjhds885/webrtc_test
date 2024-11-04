@@ -24,64 +24,6 @@ import keyboard
 from gtts import gTTS
 import os
 
-def init_page():
-    st.set_page_config(
-        page_title="Mr.Yas Chatbot",
-        page_icon="🤖"
-    )
-    st.header("Mr.Yas Chatbot 🤖")
-    st.write("""カメラとマイクのアクセスを許可するようブラウザを設定してください。
-         \nChrome・・・support.google.com参照。「カメラやマイクのアクセスを許可する」を入力して検索,
-         \nSafari・・・support.apple.com参照。設定⇒Safari⇒カメラ及びマイク⇒確認又は許可,
-         \nFirefox・・・support.mozilla.org参照。         
-         """) 
-    
-    st.sidebar.title("Options")
-
-def init_messages():
-    clear_button = st.sidebar.button("Clear Conversation", key="clear")
-    # clear_button が押された場合や message_history がまだ存在しない場合に初期化
-    if clear_button or "message_history" not in st.session_state:
-        st.session_state.message_history = [
-            ("system", "You are a helpful assistant.")
-        ]    
-def select_model():
-    # スライダーを追加し、temperatureを0から2までの範囲で選択可能にする
-    # 初期値は0.0、刻み幅は0.01とする
-    temperature = st.sidebar.slider(
-        "Temperature(回答バラツキ度合):", min_value=0.0, max_value=2.0, value=0.0, step=0.01)
-    models = ( "GPT-4o", "Claude 3.5 Sonnet", "Gemini 1.5 Pro")
-    model = st.sidebar.radio("Choose a model（大規模言語モデルを選択）:", models)
-
-       
-    if model == "GPT-4o":  #"gpt-4o 'gpt-4o-2024-08-06'" 有料？、Best
-        st.session_state.model_name = "gpt-4o"
-        return ChatOpenAI(
-            temperature=temperature,
-            model=st.session_state.model_name,
-            api_key= st.secrets.key.OPENAI_API_KEY,
-            max_tokens=512,  #指定しないと短い回答になったり、途切れたりする。
-            streaming=True,
-        )
-    elif model == "Claude 3.5 Sonnet": #コードがGood！！
-        st.session_state.model_name = "claude-3-5-sonnet-20240620"
-        return ChatAnthropic(
-            temperature=temperature,
-            #model=st.session_state.model_name,
-            model_name=st.session_state.model_name, 
-            api_key= st.secrets.key.ANTHROPIC_API_KEY,
-            max_tokens_to_sample=2048,  
-            timeout=None,  
-            max_retries=2,
-            stop=None,  
-        )
-    elif model == "Gemini 1.5 Pro":
-        st.session_state.model_name = "gemini-1.5-pro-latest"
-        return ChatGoogleGenerativeAI(
-            temperature=temperature,
-            model=st.session_state.model_name,
-            api_key= st.secrets.key.GOOGLE_API_KEY,
-        )
 #音声出力関数
 def speak(text):
     #st.write("音声ファイルを作成します。")
@@ -251,28 +193,14 @@ async def query_llm(user_input,frame):
 def main():
     #st.header("Real Time Speech-to-Text with_video")
     #画面表示
-    init_page()
-    init_messages()
+    st.header("Real Time Speech-to-Text")
     #stで使う変数初期設定
-    st.session_state.llm = select_model()
+    #st.session_state.llm = select_model()
     st.session_state.input_method = ""
     st.session_state.user_input = ""
     st.session_state.result = ""
     st.session_state.frame = "" 
-    col, col2 = st.sidebar.columns(2)
-     # 各列にボタンを配置
-    with col:
-        # 入力方法の選択
-        input_method = st.sidebar.radio("入力方法", ("テキスト", "音声"))
-        st.session_state.input_method = input_method
-     # 各列にボタンを配置
-    with col2:
-        # 出力方法の選択
-        output_method = st.sidebar.radio("出力方法", ("テキスト", "音声"))
-        st.session_state.output_method = output_method
-    # チャット履歴の表示 (第2章から少し位置が変更になっているので注意)
-    for role, message in st.session_state.get("message_history", []):
-        st.chat_message(role).markdown(message)
+    
     #データ初期値
     user_input = ""
     base64_image = ""
@@ -340,7 +268,7 @@ def app_sst_with_video():
         st.header("Webcam Stream")
         webrtc_ctx = webrtc_streamer(
             key="speech-to-text-w-video",
-            #desired_playing_state=True, 
+            desired_playing_state=True, 
             mode=WebRtcMode.SENDRECV, #.SENDONLY,  #
             #audio_receiver_size=2048,  #1024　#512 #デフォルトは4
             #小さいとQueue overflow. Consider to set receiver size bigger. Current size is 1024.
@@ -359,144 +287,87 @@ def app_sst_with_video():
     ###################################################################
     #音声入力（テキストに変換した入力）の対話ループ
     #print("Before_st.session_state.input_method=",st.session_state.input_method)
-    if st.session_state.input_method == "音声": 
+    #if st.session_state.input_method == "音声": 
         
-        text_output = st.empty() # プレースホルダーを作成
-        status_indicator = st.empty()
-        status_indicator.write("Loading...")
     
-        while True:
-            if webrtc_ctx.state.playing:
-                audio_frames = []
-                with frames_deque_lock:
-                    while len(frames_deque) > 0:
-                        frame = frames_deque.popleft()
-                        audio_frames.append(frame)
+    status_indicator = st.empty() # プレースホルダーを作成
+    status_indicator.write("Loading...")
+    text_output = st.empty() # プレースホルダーを作成
+    
+    st.sidebar.header("Capture Image")
+    cap_image = st.sidebar.empty() # プレースホルダーを作成
+   
+    
+    while True:
+        if webrtc_ctx.state.playing:
+            audio_frames = []
+            with frames_deque_lock:
+                while len(frames_deque) > 0:
+                    frame = frames_deque.popleft()
+                    audio_frames.append(frame)
 
-                if len(audio_frames) == 0:
-                    time.sleep(0.1)
-                    status_indicator.write("No frame arrived.")
-                    continue
+            if len(audio_frames) == 0:
+                time.sleep(0.1)
+                status_indicator.write("No frame arrived.")
+                continue
 
-                status_indicator.write("🤗何か話して!")
-                audio_buffer = []  # バッファを初期化
-                for audio_frame in audio_frames:
-                    
-                    # フレームを numpy 配列として取得（s16 フォーマットを int16 として解釈）
-                    audio = audio_frame.to_ndarray().astype(np.int16)
-                    audio_buffer.append(audio)  # バッファにフレームデータを追加
+            status_indicator.write("🤗何か話して!")
+            audio_buffer = []  # バッファを初期化
+            for audio_frame in audio_frames:
+                
+                # フレームを numpy 配列として取得（s16 フォーマットを int16 として解釈）
+                audio = audio_frame.to_ndarray().astype(np.int16)
+                audio_buffer.append(audio)  # バッファにフレームデータを追加
+                # 正規化して -1.0 から 1.0 の範囲に収める
+                #max_val = np.max(np.abs(audio_buffer))
+                #if max_val > 0:
+                    #audio_buffer = audio_buffer / max_val
 
-                    # 正規化して -1.0 から 1.0 の範囲に収める
-                    #max_val = np.max(np.abs(audio_buffer))
-                    #if max_val > 0:
-                        #audio_buffer = audio_buffer / max_val
-
-                if len(audio_buffer) >0:  # 100: # 
-                    # 複数フレームをまとめる
-                    audio_data = np.concatenate(audio_buffer)
-                    audio_data_bytes= audio_data.tobytes()
-                    st.session_state.user_input=""
-                    # 非同期で音声データを処理
-                    text_input=asyncio.run(process_audio(audio_data_bytes, frame.sample_rate, text_output))
-                    # バッファをクリア
-                    audio_buffer.clear() 
-                    #print("ここを通過E2") #ここまでOK
-                    #print("text_input=",text_input)
-                    if st.session_state.user_input !="":
-                        print("st.session_state.user_input=",st.session_state.user_input)  
-                        #llm_in()
-                        print("user_input=",st.session_state.user_input)
-                        with st.chat_message('user'):   
-                            st.write(st.session_state.user_input) 
-                        # 画像と問い合わせ入力があったときの処理
-                        #現在の画像をキャプチャする
-                        cap = None    
-                        #キャプチャー画像入力
-                        if webrtc_ctx.video_transformer:  
-                            cap = webrtc_ctx.video_transformer.frame
-                        if cap is not None and st.session_state.user_input !="":
-                            st.sidebar.header("Capture Image")
-                            st.sidebar.image(cap, channels="BGR")
-                            # if st.button("Query LLM : 画像の内容を説明して"):
-                            with st.spinner("Querying LLM..."):
-                                loop = asyncio.new_event_loop()
-                                asyncio.set_event_loop(loop)
-                                st.session_state.result= ""
-                                result = loop.run_until_complete(query_llm(st.session_state.user_input,cap))
-                                st.session_state.result = result
-                                result = ""
-                                #result = await query_llm(text,frame)
-                                st.session_state.user_input=""
-                                        
-            else:
-                status_indicator.write("Stopped.")
-                break
-
-    ################################################################### 
-    # テキスト入力の場合
-    # テキスト入力フォーム
-    if st.session_state.input_method == "テキスト":
-        button_input = ""
-        # 4つの列を作成
-        col1, col2, col3, col4 = st.columns(4)
-        # 各列にボタンを配置
-        with col1:
-            if st.button("画像の内容を説明して"):
-                button_input = "画像の内容を説明して"
-        with col2:
-            if st.button("前の画像と何が変わりましたか？"):
-                button_input = "前の画像と何が変わりましたか？"
-        with col3:
-            if st.button("この画像の文を翻訳して"):
-                button_input = "この画像の文を翻訳して"
-        with col4:
-            if st.button("人生の意義は？"):
-                button_input = "人生の意義？"
-        col5, col6, col7, col8 = st.columns(4)
-        with col5:
-            if st.button("日本語に翻訳してください。"):
-                button_input = "日本語に翻訳してください。"
-        with col6:
-            if st.button("善悪は何で決まりますか？"):
-                button_input = "善悪は何で決まりますか？"
-        with col7:
-            if st.button("日本の観光地を教えてください。"):
-                button_input = "日本の観光地を教えてください。"
-        with col8:
-            if st.button("今日の料理はなにがいいかな"):
-                button_input = "今日の料理はなにがいいかな"
-        if button_input !="":
-            st.session_state.user_input=button_input
-
-        text_input =st.chat_input("🤗テキストで問い合わせる場合、ここに入力してね！") #,key=st.session_state.text_input)
-        #text_input = st.text_input("テキストで問い合わせる場合、以下のフィールドに入力してください:", key=st.session_state.text_input) 
-        if text_input:
-            st.session_state.user_input=text_input
-            text_input=""
-            #llm_in()
-            print("user_input=",st.session_state.user_input)
-        with st.chat_message('user'):   
-            st.write(st.session_state.user_input) 
-        # 画像と問い合わせ入力があったときの処理
-        #現在の画像をキャプチャする
-        cap = None    
-        #キャプチャー画像入力
-        if webrtc_ctx.video_transformer:  
-            cap = webrtc_ctx.video_transformer.frame
-        if cap is not None and st.session_state.user_input !="":
-            st.sidebar.header("Capture Image")
-            st.sidebar.image(cap, channels="BGR")
-            # if st.button("Query LLM : 画像の内容を説明して"):
-            with st.spinner("Querying LLM..."):
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                st.session_state.result= ""
-                result = loop.run_until_complete(query_llm(st.session_state.user_input,cap))
-                st.session_state.result = result
-                result = ""
-                #result = await query_llm(text,frame)
+            if len(audio_buffer) >0:  # 100: # 
+                # 複数フレームをまとめる
+                audio_data = np.concatenate(audio_buffer)
+                audio_data_bytes= audio_data.tobytes()
                 st.session_state.user_input=""
+                # 非同期で音声データを処理
+                text_input=asyncio.run(process_audio(audio_data_bytes, frame.sample_rate, text_output))
+                # バッファをクリア
+                audio_buffer.clear() 
+                #print("ここを通過E2") #ここまでOK
+                #print("text_input=",text_input)
+                if st.session_state.user_input !="":
+                    #print("st.session_state.user_input=",st.session_state.user_input)  
+                    #llm_in()
+                    print("user_input=",st.session_state.user_input)
+                    with text_output.chat_message('user'):    #st.chat_message('user'):   
+                        st.write(st.session_state.user_input) 
+                        #text_output.write(st.session_state.user_input)
+                    # 画像と問い合わせ入力があったときの処理
+                    #現在の画像をキャプチャする
+                    cap = None    
+                    #キャプチャー画像入力
+                    if webrtc_ctx.video_transformer:  
+                        cap = webrtc_ctx.video_transformer.frame
+                    if cap is not None and st.session_state.user_input !="":
+                        #st.sidebar.header("Capture Image")
+                        cap_image.image(cap, channels="BGR")
 
+                        # if st.button("Query LLM : 画像の内容を説明して"):
+                        #with st.spinner("Querying LLM..."):
+                            #loop = asyncio.new_event_loop()
+                            #asyncio.set_event_loop(loop)
+                            #st.session_state.result= ""
+                            #result = loop.run_until_complete(query_llm(st.session_state.user_input,cap))
+                            #st.session_state.result = result
+                            #result = ""
+                            #result = await query_llm(text,frame)
+                            #st.session_state.user_input=""
+                                    
+        else:
+            status_indicator.write("Stopped.")
+            break
+
+################################################################### 
+    
 ################################################################### 
  
 ###################################################################      
