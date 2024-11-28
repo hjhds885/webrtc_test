@@ -1,5 +1,5 @@
 streamlit==1.38.0
-streamlit_webrtc
+streamlit_webrtc==0.47.9
 opencv-python-headless==4.10.0.84
 av
 SpeechRecognition==3.10.1
@@ -17,3 +17,10 @@ gTTS==2.5.3
 pyttsx3==2.91
 typing_extensions                        
 typing-inspect
+openai-whisper==20240930
+numpy==1.26.4
+pydub==0.25.1
+torch==2.4.0
+torchaudio==2.4.0
+torchvision==0.19.0
+threadpoolctl==3.2.0
